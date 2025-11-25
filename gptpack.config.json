@@ -1,0 +1,40 @@
+{
+  "outputDir": "C:\\gpt_upload",
+
+  "skipDirs": [
+    ".git", ".svn", ".hg",
+    ".idea", ".vscode",
+    "node_modules",
+    "dist", "build", "out", "bin", "obj",
+    "__pycache__", ".mypy_cache", ".pytest_cache",
+    ".cache", ".gradle", ".cargo", "target",
+    ".nuget", "packages",
+    "env", "venv", ".venv"
+  ],
+
+  "skipExt": [
+    ".exe", ".dll", ".so", ".dylib",
+    ".a", ".lib", ".o", ".obj",
+    ".class", ".jar", ".war", ".ear",
+    ".pyc",
+    ".bin", ".dat", ".pack",
+    ".iso",
+
+    ".zip", ".7z", ".rar", ".tar", ".gz", ".xz", ".bz2",
+
+    ".onnx", ".tflite", ".pth", ".pt", ".ckpt", ".safetensors",
+    ".pb", ".h5",
+    
+    ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp", ".svg",
+    ".ico", ".icns",
+
+    ".mp4", ".mkv", ".mov", ".avi", ".webm", ".mp3", ".wav",
+    ".flac", ".aac",
+
+    ".pdf", ".psd"
+  ],
+
+  "skipBinaryNoExt": true,
+
+  "ignoreFile": ".gptpackignore"
+}
