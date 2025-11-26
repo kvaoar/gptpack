@@ -1,85 +1,167 @@
-# GPTPack — packaging projects and instantly sending them to ChatGPT
-GPTPack is an ecosystem of tools (CLI, Shell Extension, and Chrome plugin) that allows you to  
-**create ZIP archives of any folders and automatically send them to an open ChatGPT chat in one action**.
-The project solves the problem of constantly transferring files, version confusion, loss of context,  
-and turns uploading source code to ChatGPT into a normal, streamlined workflow.
+
+# GPTPack — Project Packaging and One‑Click Upload to ChatGPT
+
+GPTPack is a small utility that **packs any project folder into a ZIP archive** and
+**automatically delivers it into an open ChatGPT chat** using the companion Chrome extension.
+
+This workflow solves the problem of:
+- losing context between iterations,
+- sending scattered files,
+- keeping multiple versions manually,
+- re‑uploading the same data repeatedly.
+
+GPTPack makes file exchange with ChatGPT predictable, structured and fast.
+
 ---
 
-# 📌 1. Purpose of the project
-GPTPack allows you to:
-- Package any source directory into a ZIP archive.  
-- Create archives strictly in `C:\gpt_upload`.  
-- Automatically send the archive to ChatGPT through the Chrome plugin.  
-- Trigger sending via **right-click** → *Send to ChatGPT* using Custom Context Menu (Windows 11).
+## 1. Purpose
+
+GPTPack is designed to:
+
+- Create clean ZIP archives of source projects  
+- Exclude useless binary garbage via configurable rules  
+- Save archives strictly into `C:\gpt_upload`  
+- Trigger automatic upload to ChatGPT (via Chrome extension)  
+- Enable a Windows 11 context‑menu entry **Send to ChatGPT**  
+
+It is intended as a frictionless “send my current project to ChatGPT” workflow.
+
 ---
 
-# 📦 2. GPTPack installation
+## 2. Installation
+
 ### Requirements
-- Windows 11 x64  
-- PowerShell  
-- Chrome  
-### Installation steps
-1. Extract the project.  
-2. Run the installation script:
-```powershell
-.\install.ps1
+- Windows 11 (x64)
+- PowerShell
+- Go compiler (installer installs it automatically if missing)
+- Chrome browser (for auto‑upload extension)
+
+### Steps
+
+1. Unpack the project.
+2. Run:
+   ```powershell
+   .\install_gptpack.ps1
+   ```
+3. Installer will:
+   - generate the Windows resource file (.syso),
+   - build `gptpack.exe`,
+   - copy `gptpack.config.json` to `C:\gptpack`,
+   - create `C:\gpt_upload` if missing.
+
+You can now run:
 ```
-The script creates:
+C:\gptpack\gptpack.exe <folder>
 ```
-C:\gptpack\
-    gptpack.exe
-C:\gpt_upload\
-```
+
 ---
 
-# 🖱 3. Installing the Windows 11 context menu (Custom Context Menu)
-The project already includes a ready configuration file:  
-**gptpack.json**
-It contains the full setup for the context-menu item:
-- Name: **Send to ChatGPT**
-- Command:
-  ```
-  "C:\\gptpack\\gptpack.exe" "{path}"
-  ```
-- Icon:
-  ```
-  "C:\\gptpack\\gptpack.exe",0
-  ```
+## 3. Configuration File (`gptpack.config.json`)
 
-## Installation:
-1. Install the utility:  
+GPTPack uses this JSON to control its filtering behavior:
+
+```json
+{
+  "outputDir": "C:\\gpt_upload",
+
+  "skipDirs": [
+    ".git", ".svn", ".hg",
+    ".idea", ".vscode",
+    "node_modules",
+    "dist", "build", "out", "bin", "obj",
+    "__pycache__", ".mypy_cache", ".pytest_cache",
+    ".cache", ".gradle", ".cargo", "target",
+    ".nuget", "packages",
+    "env", "venv", ".venv"
+  ],
+
+  "skipExt": [
+    ".exe", ".dll", ".so", ".dylib",
+    ".a", ".lib", ".o", ".obj",
+    ".class", ".jar", ".war", ".ear",
+    ".pyc", ".bin", ".dat", ".pack", ".iso",
+    ".zip", ".7z", ".rar", ".tar", ".gz", ".xz", ".bz2",
+    ".onnx", ".tflite", ".pth", ".pt", ".ckpt", ".safetensors",
+    ".pb", ".h5",
+    ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp", ".svg",
+    ".ico", ".icns",
+    ".mp4", ".mkv", ".mov", ".avi", ".webm", ".mp3", ".wav", ".aac",
+    ".pdf", ".psd"
+  ],
+
+  "skipBinaryNoExt": true,
+  "ignoreFile": ".gptpackignore"
+}
+```
+
+### Meaning of keys
+- **outputDir** — where final ZIP files are written  
+- **skipDirs** — directory names that must be fully excluded (whole subtree)  
+- **skipExt** — extensions always skipped  
+- **skipBinaryNoExt** — skip extensionless files if binary  
+- **ignoreFile** — extra ignore list placed in the scanned project root  
+
+---
+
+## 4. Windows 11 Context Menu Integration
+
+GPTPack ships with a ready configuration file for  
+**Custom Context Menu for Windows 11**:
+
+`gptpack.json`
+
+To enable:
+
+1. Install:  
    https://github.com/ikas-mc/ContextMenuForWindows11
-2. Launch the program → **Open Menu Config File**.
-3. Place the file:
-```
-gptpack.json
-```
-into the directory that opens.
-4. A new item will appear in File Explorer:
-> **Send to ChatGPT**
-It works reliably in the new Windows 11 context menu.
----
 
-# 🔧 4. Chrome plugin
-The GPTPack Chrome extension monitors new ZIP files and automatically uploads them to the chat.
-### To allow it to read `C:\gpt_upload`:
-1. Click the GPTPack extension icon in Chrome (the button in the toolbar next to the ChatGPT send button).  
-2. In the popup, press **Grant folder access**.  
-3. Chrome will open the native directory selection dialog.  
-4. Select:
-```
-C:\gpt_upload
-```
-5. Confirm the choice.
-The extension will receive the `FileSystemDirectoryHandle` and begin monitoring.
----
+2. Open menu config folder inside the app.
 
-# 🚀 5. Quick usage scenario
-1. Right-click any project folder.  
-2. Choose **Send to ChatGPT**.  
-3. GPTPack creates a ZIP in `C:\gpt_upload`.  
-4. The Chrome plugin detects the new ZIP.  
-5. The archive is uploaded directly to the chat.
+3. Copy `gptpack.json` into that folder.
+
+4. A new right‑click option appears: **Send to ChatGPT**.
+
+This invokes:
+```
+"C:\gptpack\gptpack.exe" "<selected_folder>"
+```
 
 ---
 
+## 5. Chrome Extension Permission (auto‑upload)
+
+The extension automatically uploads any new ZIP appearing in `C:\gpt_upload`.
+
+To enable folder access:
+
+1. Click GPTPack extension icon in Chrome.
+2. Click **Grant folder access**.
+3. Select:
+   ```
+   C:\gpt_upload
+   ```
+4. Confirm.
+
+The extension receives a persistent `FileSystemDirectoryHandle` and begins monitoring automatically.
+
+---
+
+## 6. Usage Workflow
+
+1. Right‑click any folder → **Send to ChatGPT**  
+2. GPTPack collects and filters files  
+3. ZIP is generated in `C:\gpt_upload`  
+4. Chrome extension sees the new file  
+5. Upload happens instantly into the open ChatGPT chat  
+
+This produces consistent, reproducible uploads without manual fumbling.
+
+---
+
+## 7. Notes
+
+- All skipping logic is logged inside `_gptpack_log.txt` inside each ZIP.
+- Only text‑relevant files are included to keep archives clean and readable.
+- Configuration is fully customizable by editing the JSON in `C:\gptpack`.
+
+---
